@@ -1,0 +1,40 @@
+{
+    "project_info": {
+      "project_number": "279422230573",
+      "firebase_url": "https://dockerapp-f44a3.firebaseio.com",
+      "project_id": "dockerapp-f44a3",
+      "storage_bucket": "dockerapp-f44a3.appspot.com"
+    },
+    "client": [
+      {
+        "client_info": {
+          "mobilesdk_app_id": "1:279422230573:android:78cfcc36dd3328c5d858a4",
+          "android_client_info": {
+            "package_name": "com.nilesh.DockerApp"
+          }
+        },
+        "oauth_client": [
+          {
+            "client_id": "279422230573-t52g4pushn24qdv4f6udl5is4a6igt0m.apps.googleusercontent.com",
+            "client_type": 3
+          }
+        ],
+        "api_key": [
+          {
+            "current_key": "AIzaSyAFpeGgN1NLSa82HuTK-13I59tS6MTJoAM"
+          }
+        ],
+        "services": {
+          "appinvite_service": {
+            "other_platform_oauth_client": [
+              {
+                "client_id": "279422230573-t52g4pushn24qdv4f6udl5is4a6igt0m.apps.googleusercontent.com",
+                "client_type": 3
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "configuration_version": "1"
+  }

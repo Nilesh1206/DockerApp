@@ -1,0 +1,925 @@
+import 'package:DockerApp/ui/Commit.dart';
+import 'package:DockerApp/ui/DeletePage.dart';
+import 'package:DockerApp/ui/DockerBuild.dart';
+import 'package:DockerApp/ui/DockInstall.dart';
+import 'package:DockerApp/ui/ExecPage.dart';
+import 'package:DockerApp/ui/PullPage.dart';
+import 'package:bottom_navy_bar/bottom_navy_bar.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:bmnav/bmnav.dart';
+import 'package:custom_splash/custom_splash.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_icons/flutter_icons.dart';
+//import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
+import 'package:passwordfield/passwordfield.dart';
+import 'DockerLaunch.dart';
+import 'package:DockerApp/ui/DockerCopy.dart';
+import 'package:DockerApp/ui/LaunchPage.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:DockerApp/ui/DockerImages.dart';
+import 'package:DockerApp/ui/DockerFileWrite.dart';
+import 'Server/Network.dart';
+import 'Server/Volumes.dart';
+import 'DockerLaunch.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+int _currentindex = 1;
+
+enum PageEnum {
+  containers,
+  images,
+  active,
+  all,
+  lsnet,
+  connect,
+  volume,
+}
+
+class MyApp extends StatefulWidget {
+  final String title;
+  MyApp({Key key, this.title}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+// ignore: camel_case_types
+class contextCapture {
+  static var context;
+}
+
+Future navigateToSubPage(context) async {
+  Navigator.pop(context);
+}
+
+class _MyAppState extends State<MyApp> {
+  _onSelect(PageEnum value) {
+    switch (value) {
+      case PageEnum.containers:
+        Navigator.of(context).push(CupertinoPageRoute(
+            builder: (BuildContext context) => ContainerDelete()));
+        break;
+      case PageEnum.images:
+        Navigator.of(context).push(CupertinoPageRoute(
+            builder: (BuildContext context) => DockerImages()));
+        break;
+      default:
+        Navigator.of(context).push(CupertinoPageRoute(
+            builder: (BuildContext context) => DockerImages()));
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    setState(() {
+      Commands.currentindex = 1;
+    });
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            appBar: AppBar(
+              centerTitle: true,
+              title: Row(
+                children: <Widget>[
+                  Container(
+                    
+                    margin: EdgeInsets.only(left: 0,right: 10),
+                    height: 33,
+                    width: 33,
+                    decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: AssetImage("images/123.png"))),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text('DockerApp'),
+                ],
+              ),
+              backgroundColor: Colors.blue.shade500,
+              bottom: TabBar(
+                  indicatorColor: Colors.white,
+                  labelColor: Colors.white,
+                  tabs: [
+                    Tab(
+                      icon: Icon(Icons.home),
+                      text: "Login",
+                    ),
+                    Tab(
+                      icon: Icon(Icons.device_hub),
+                      text: " Docker Hub",
+                    ),
+                  ]),
+              actions: <Widget>[
+                 IconButton(
+                        icon: Icon(Icons.desktop_windows), onPressed: () {
+                          showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    content: Stack(
+                                      overflow: Overflow.visible,
+                                      children: <Widget>[
+                                        Positioned(
+                                          right: -35.0,
+                                          top: -30.0,
+                                          child: InkResponse(
+                                            onTap: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: CircleAvatar(
+                                              backgroundColor: Colors.lightBlue,
+                                              maxRadius: 19,
+                                              child: IconButton(
+                                                  icon: Icon(
+                                                    Icons.close,
+                                                    color: Colors.white,
+                                                  ),
+                                                  onPressed:
+                                                      Navigator.of(context)
+                                                          .pop),
+                                            ),
+                                          ),
+                                        ),
+                                        Form(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: <Widget>[
+                                              Column(
+                                                children: <Widget>[
+                                                  Row(
+                                                    children: <Widget>[
+                                                      Container(
+                                                        margin: EdgeInsets.only(
+                                                            top: 0,left:20),
+                                                        child: Text(
+                                                          "Install Your Docker Here",
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .black,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        ),
+                                                      ),
+                                                      
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: <Widget>[
+                                                      Card(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50)),
+                      margin: EdgeInsets.all(25),
+                      child: Container(
+                        margin: EdgeInsets.all(0),
+                        height: 50,
+                        width: 180,
+                        child: FloatingActionButton(
+                          isExtended: true,
+                          backgroundColor: Colors.lightBlue,
+                          child: Text("Install"),
+                          onPressed: ()  {
+                            DockerInstall();
+                          },
+                        ),
+                      ),
+                    )
+                                                    ],
+                                                  ),
+                                                  
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                });
+                        }),
+                PopupMenuButton<PageEnum>(
+                  //icon: Icon(Icons.desktop_windows),
+                  onSelected: _onSelect,
+                  itemBuilder: (context) => <PopupMenuEntry<PageEnum>>[
+                    PopupMenuItem<PageEnum>(
+                      value: PageEnum.containers,
+                      child: Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.laptop,
+                            color: Colors.black,
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            "Active Containers",
+                          )
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem<PageEnum>(
+                      value: PageEnum.images,
+                      child: Row(
+                        children: <Widget>[
+                          Icon(
+                            Icons.laptop,
+                            color: Colors.grey.shade900,
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            "Available Images",
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            body: Container(
+              child: TabBarView(children: [
+                MyHomePage(),
+                DCHub(),
+              ]),
+            ),
+            bottomNavigationBar: BottomNav(
+              iconStyle: IconStyle(onSelectSize: 30),
+              index: 1,
+              labelStyle: LabelStyle(showOnSelect: true),
+              onTap: (index) {
+                if (index == 0) {
+                  setState(() {
+                    Commands.currentindex = 0;
+                  });
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return Network();
+                  }));
+                }
+                if (index == 1) {
+                  setState(() {
+                    Commands.currentindex = 1;
+                  });
+                }
+                if (index == 2) {
+                  setState(() {
+                    Commands.currentindex = 2;
+                  });
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return Volume();
+                  }));
+                }
+              },
+              items: [
+                BottomNavItem(Icons.cloud, label: 'Networks'),
+                BottomNavItem(Icons.home, label: 'Home'),
+                BottomNavItem(Icons.storage, label: 'Volumes')
+              ],
+            ),
+            drawer: Drawer(
+              elevation: 10,
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: <Widget>[
+                  DrawerHeader(
+                    child: Image(
+                      image: AssetImage('images/docker.png'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  ListTile(
+                      leading: Icon(Icons.dock),
+                      title: Text('Launch Container'),
+                      onTap: () {
+                        setState(() {
+                          contextCapture.context = context;
+                        });
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return ContainerLaunch();
+                        }));
+                      }),
+                  ListTile(
+                    leading: Icon(Icons.file_download),
+                    title: Text('Pull Container Image'),
+                    onTap: () {
+                      setState(() {
+                        contextCapture.context = context;
+                      });
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return ImagePull();
+                      }));
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.call_to_action),
+                    title: Text('Execute Command'),
+                    onTap: () {
+                      setState(() {
+                        contextCapture.context = context;
+                      });
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return Execute();
+                      }));
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.content_copy),
+                    title: Text('Docker Copy'),
+                    onTap: () {
+                      setState(() {
+                        contextCapture.context = context;
+                      });
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return Dockercp();
+                      }));
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.library_books),
+                    title: Text('Build Dockerfile'),
+                    onTap: () {
+                      setState(() {
+                        contextCapture.context = context;
+                      });
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return DockerFile(); //DockerFile();
+                      }));
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.library_books),
+                    title: Text('Write Dockerfile'),
+                    onTap: () {
+                      setState(() {
+                        contextCapture.context = context;
+                      });
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return WriteFile(); //DockerFile();
+                      }));
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.copyright),
+                    title: Text('Docker Commit'),
+                    onTap: () {
+                      setState(() {
+                        contextCapture.context = context;
+                      });
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return Commit();
+                      }));
+                    },
+                  ),
+                ],
+              ),
+            ),
+            drawerEnableOpenDragGesture: true,
+          )),
+    );
+  }
+}
+
+var newWid = Container();
+
+class MyHomePage extends StatefulWidget {
+  final String title;
+  MyHomePage({Key key, this.title}) : super(key: key);
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  String _backgroundImage;
+  String _setImage() {
+    String _mTitle = "${ServerInfo.name.substring(7,31)}";
+
+    if (_mTitle == "Red Hat Enterprise Linux") {
+      _backgroundImage = "images/redhat.jpg";
+    } else if (_mTitle == "Ubuntu") {
+      _backgroundImage = "assets/ubuntu.jpg";
+    }
+    else if (_mTitle == "Amazon Linux") {
+      _backgroundImage = "images/aws.jpg";
+    }
+    else if(_mTitle ==""){
+      _backgroundImage = 'images/dock.png';
+    }
+    print("_mTitle: $_mTitle");
+    print("_backgroundImage: $_backgroundImage");
+    return _backgroundImage; // here it returns your _backgroundImage value
+  }
+ 
+   TextEditingController nameController = TextEditingController();
+  bool isLoggedIn = false;
+  String name = '';
+
+  @override
+  void initState() {
+    super.initState();
+    autoLogIn();
+  }
+
+   void autoLogIn() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String userId = prefs.getString('username');
+
+    if (userId != null) {
+      setState(() {
+        isLoggedIn = true;
+        name = userId;
+      });
+      return;
+    }
+  }
+
+  Future<Null> logout() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('username', null);
+
+    setState(() {
+      name = '';
+      isLoggedIn = false;
+    });
+  }
+
+  Future<Null> loginUser() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('username', nameController.text);
+
+    setState(() {
+      name = nameController.text;
+      isLoggedIn = true;
+    });
+
+    nameController.clear();
+  }
+  @override
+  Widget build(BuildContext context) {
+    setState(() {
+      contextCapture.context = context;
+    });
+    //FlutterStatusbarcolor.setStatusBarColor(Colors.blue);
+    //FlutterStatusbarcolor.setNavigationBarColor(Colors.blue);
+    //FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
+    //FlutterStatusbarcolor.setNavigationBarWhiteForeground(false);
+    var LoginBody = SingleChildScrollView(
+      child: Column(
+        children: <Widget>[
+          Container(
+            color: Colors.grey.shade200,
+            height: 500,
+            width: 400,
+            margin: EdgeInsets.only(top: 100, right: 10, left: 10),
+            child: Column(
+              children: <Widget>[
+                Card(
+                  elevation: 5,
+                  child: Container(
+                      height: 40,
+                      width: 350,
+                      decoration: BoxDecoration(color: Colors.lightBlue),
+                      child: Center(
+                        child: Text(
+                          "Server Credentials",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      )),
+                ),
+                Container(
+              height: 40,
+              width: 350,
+              margin: EdgeInsets.only(top: 20, left: 20),
+              child: Row(
+                children: <Widget>[
+                  Container(
+                    width: 70,
+                    child: Text("Host IP   : "),
+                  ),
+                  Container(
+                    height: 35,
+                    width: 250,
+                    decoration: BoxDecoration(
+                        color: Colors.lightBlue,
+                        borderRadius: BorderRadius.circular(10)),
+                    margin: EdgeInsets.only(left: 20, right: 10),
+                    child: TextField(
+                      autocorrect: false,
+                      style: TextStyle(color: Colors.black),
+                      decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          hintText: "IP",
+                          hintStyle: TextStyle(color: Colors.grey),
+                          border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)))),
+                      onChanged: (value) => {serverCredentials.ip = value},
+                    ),
+                  ),
+                ],
+              ),
+            ),
+                Container(
+              height: 40,
+              width: 350,
+              margin: EdgeInsets.only(top: 20, left: 20, right: 0),
+              child: Row(
+                children: <Widget>[
+                  Container(
+                    width: 75,
+                    child: Text("Username: "),
+                  ),
+                  Container(
+                    height: 35,
+                    width: 245,
+                    decoration: BoxDecoration(
+                        color: Colors.lightBlue,
+                        borderRadius: BorderRadius.circular(10)),
+                    margin: EdgeInsets.only(left: 20, right: 10),
+                    child: TextField(
+                      style: TextStyle(color: Colors.black),
+                      decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          hintText: "User",
+                          hintStyle: TextStyle(color: Colors.grey),
+                          border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)))),
+                      onChanged: (value) =>
+                          {serverCredentials.username = value},
+                    ),
+                  ),
+                ],
+              ),
+            ),
+                Container(
+              height: 40,
+              width: 350,
+              margin: EdgeInsets.only(top: 20, left: 20),
+              child: Row(
+                children: <Widget>[
+                  Container(
+                    width: 75,
+                    child: Text("Password: "),
+                  ),
+                  Container(
+                    height: 35,
+                    width: 245,
+                    decoration: BoxDecoration(
+                        color: Colors.lightBlue,
+                        borderRadius: BorderRadius.circular(10)),
+                    margin: EdgeInsets.only(left: 20, right: 10),
+                    child: TextField(
+                      style: TextStyle(color: Colors.black),
+                      decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          hintText: "Password",
+                          hintStyle: TextStyle(color: Colors.grey),
+                          border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)))),
+                      onChanged: (value) =>
+                          {serverCredentials.password = value},
+                    ),
+                  ),
+                ],
+              ),
+            ),
+                Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50)),
+                  margin: EdgeInsets.all(25),
+                  child: Container(
+                    margin: EdgeInsets.all(0),
+                    height: 50,
+                    width: 180,
+                    child: FloatingActionButton(
+                      isExtended: true,
+                      backgroundColor: Colors.lightBlue,
+                      child: Text("Connect"),
+                      onPressed: () async {
+                        await Connect();
+                        await ServerBody();
+                        await Status();
+                        setState(() {
+                          newWid = Container(
+                            width: 370,
+                            padding: EdgeInsets.only(left: 5, top: 10),
+                            margin: EdgeInsets.fromLTRB(14, 20, 14, 20),
+                            decoration: BoxDecoration(
+                                border:
+                                    Border.all(color: Colors.black, width: 1),
+                                color: Colors.white,
+                                shape: BoxShape.rectangle,
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.elliptical(20, 20),
+                                  bottomLeft: Radius.elliptical(20, 20),
+                                  topRight: Radius.elliptical(20, 20),
+                                  bottomRight: Radius.elliptical(20, 20),
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey,
+                                    blurRadius: 10.0,
+                                  ),
+                                ]),
+                            child: Column(
+                              children: [
+                                Card(
+                                  elevation: 5,
+                                  color: Colors.lightBlue,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5)),
+                                  child: Container(
+                                    height: 30,
+                                    width: 250,
+                                    child: Center(
+                                        child: Text(
+                                      'Connected Server',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold),
+                                    )),
+                                  ),
+                                ),
+                                Row(
+                                  children: <Widget>[
+                                    Container(
+                                      margin: EdgeInsets.only(top: 10),
+                                      child: Text(
+                                        " Name: ",
+                                        style: TextStyle(
+                                            color: Colors.lightBlue,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.only(
+                                          top: 10, bottom: 0, left: 10),
+                                      child: Text(
+                                        ServerInfo.name.substring(7,ServerInfo.name.length-3),
+                                        style: TextStyle(color: Colors.black),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                Row(
+                                  children: <Widget>[
+                                    Container(
+                                      margin: EdgeInsets.only(top: 10),
+                                      child: Text(
+                                        " Version: ",
+                                        style: TextStyle(
+                                            color: Colors.lightBlue,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.only(
+                                          top: 10, bottom: 0, left: 10),
+                                      child: Text(
+                                        ServerInfo.ver1.substring(10, ServerInfo.ver1.length-3 ),
+                                        style: TextStyle(color: Colors.black),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                Row(
+                                  children: <Widget>[
+                                    Container(
+                                      margin: EdgeInsets.only(top: 10),
+                                      child: Text(
+                                        " ID: ",
+                                        style: TextStyle(
+                                            color: Colors.lightBlue,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.only(
+                                          top: 10,
+                                          bottom: 0,
+                                          left: 40,
+                                          right: 0),
+                                      child: Text(
+                                        ServerInfo.id0.substring(5,ServerInfo.id0.length-3 ),
+                                        style: TextStyle(color: Colors.black),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                
+                                Row(
+                                                        children: <Widget>[
+                                                          Container(
+                                                            margin:
+                                                                EdgeInsets.only(
+                                                                    top: 10),
+                                                            child: Text(
+                                                              " Docker Version: ",
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .lightBlue,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,fontSize: 20),
+                                                            ),
+                                                          ),
+                                                          Container(
+                                                            margin:
+                                                                EdgeInsets.only(
+                                                                    top: 10,
+                                                                    bottom: 0,
+                                                                    left: 10),
+                                                            child: Text(
+                                                              Commands.stat.substring(16,24),
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .black,fontWeight: FontWeight.bold,fontSize: 20),
+                                                            ),
+                                                          )
+                                                        ],
+                                                      ),
+                                Container(
+                                  height: 120,
+                                  width: 150,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: new AssetImage(_setImage())),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        });
+                      },
+                    ),
+                  ),
+                )
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+
+    return Container(
+      height: MediaQuery.of(context).size.height,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+            image: AssetImage("images/f2.png"), fit: BoxFit.cover),
+      ),
+      child: SingleChildScrollView(
+          child: Column(
+        children: <Widget>[
+          Container(
+            margin: EdgeInsets.only(bottom: 0),
+            child: Icon(
+              Icons.laptop_windows,
+              size: 170,
+              color: Colors.grey.shade700,
+            ),
+          ),
+          Card(
+            elevation: 5,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+            margin: EdgeInsets.only(top: 0, left: 30, right: 20, bottom: 20),
+            child: Container(
+              margin: EdgeInsets.all(0),
+              height: 30,
+              width: 180,
+              child: FloatingActionButton(
+                shape: RoundedRectangleBorder(),
+                isExtended: true,
+                backgroundColor: Colors.lightBlue,
+                child: Text("Server Login"),
+                onPressed: () => {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return MaterialApp(
+                      debugShowCheckedModeBanner: false,
+                      home: Scaffold(
+                        appBar: AppBar(
+                          title: Text("Server"),
+                          leading: IconButton(
+                            icon: Icon(Icons.arrow_back),
+                            onPressed: () => {navigateToSubPage(context)},
+                          ),
+                          backgroundColor: Colors.lightBlue,
+                        ),
+                        body: LoginBody,
+                      ),
+                    );
+                  }))
+                },
+              ),
+            ),
+          ),
+          newWid
+        ],
+      )),
+    );
+  }
+}
+
+class DCHub extends StatefulWidget {
+  final String title;
+  DCHub({Key key, this.title}) : super(key: key);
+
+  @override
+  _DCHubState createState() => _DCHubState();
+}
+
+class _DCHubState extends State<DCHub> {
+  @override
+  Widget build(BuildContext context) {
+   // FlutterStatusbarcolor.setStatusBarColor(Colors.blue);
+    //FlutterStatusbarcolor.setNavigationBarColor(Colors.blue);
+    return Container(
+      decoration: BoxDecoration(
+          image: DecorationImage(
+              image: AssetImage("images/d5.png"), fit: BoxFit.fill)),
+      child: SingleChildScrollView(
+          child: Column(
+        children: <Widget>[
+          Container(
+              padding: EdgeInsets.only(top: 75),
+              margin: EdgeInsets.only(top: 0),
+              child: Wrap(
+                children: <Widget>[
+                  Text(
+                    "Docker",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 45,
+                    ),
+                  ),
+                  Text(
+                    "hub",
+                    style: TextStyle(
+                        color: Colors.lightBlue.shade200,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 45),
+                  ),
+                ],
+              )),
+          Container(
+            margin: EdgeInsets.only(left: 30, top: 15),
+            width: MediaQuery.of(context).size.width - 25,
+            child: Text(
+              "Dockerhub is the world's easiest way to manage",
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              softWrap: true,
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.only(left: 50),
+            width: MediaQuery.of(context).size.width - 30,
+            child: Text(
+              "deliver your team's container applications",
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              softWrap: true,
+            ),
+          ),
+          SizedBox(height: 95),
+          Container(
+            width: 150,
+            child: FloatingActionButton(
+              backgroundColor: Colors.blue,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0)),
+              isExtended: true,
+              onPressed: HubLaunch,
+              child: Container(
+                child: Text("Explore!"),
+              ),
+            ),
+          )
+        ],
+      )),
+    );
+  }
+}
