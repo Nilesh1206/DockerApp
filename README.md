@@ -9,7 +9,7 @@ A Monitoring Mobile Application implemented using Docker and Flutter.
      * Launching New Containers
      * Pulling new docker images
   
-# Docker
+<!-- # Docker
 Docker is an open platform for developing, shipping, and running applications. Docker enables us to separate our applications from our infrastructure so we can deliver software quickly. 
 With Docker, we can manage your infrastructure in the same ways we manage your applications. By taking advantage of Docker’s methodologies for shipping, testing, and 
 deploying code quickly, we can significantly reduce the delay between writing code and running it in production.
@@ -24,7 +24,7 @@ It's same as above but instead of using an entire operating system, it cut down 
 Its primary focus is to automate the deployment of applications inside software containers and the automation of operating system level virtualization on Linux. It's more lightweight than standard Containers and boots up in seconds.
 
 
-![Image of Docker](https://i.stack.imgur.com/TU8gO.jpg)
+![Image of Docker](https://i.stack.imgur.com/TU8gO.jpg) -->
 
 # Example
 
