@@ -54,8 +54,8 @@ Its primary focus is to automate the deployment of applications inside software 
 Similary, we can use other services, like **Pulling Docker Image**, **Writing Docker File** , and many more.
 
 
-### Contributor
-   * <a href="https://github.com/Nilesh1206">Nilesh Gopale</a>
+<!-- ### Contributor
+   * <a href="https://github.com/Nilesh1206">Nilesh Gopale</a> -->
 
 
 
